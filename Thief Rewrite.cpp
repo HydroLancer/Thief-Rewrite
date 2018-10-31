@@ -75,7 +75,8 @@ void main()
 
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("C:\\ProgramData\\TL-Engine\\Media");
-	myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
+	//myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
+	myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
 
 	/**** Set up your scene here ****/
 

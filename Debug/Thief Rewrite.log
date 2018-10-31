@@ -1,5 +1,5 @@
 ﻿  Thief Rewrite.cpp
-e:\uni stuff!\2nd year\game dev 1\labs\thief-rewrite\thief rewrite.cpp(334): warning C4101: 'wy': unreferenced local variable
-e:\uni stuff!\2nd year\game dev 1\labs\thief-rewrite\thief rewrite.cpp(334): warning C4101: 'vy': unreferenced local variable
-  Thief Rewrite.vcxproj -> E:\Uni Stuff!\2nd Year\Game Dev 1\Labs\Thief-Rewrite\\Thief RewriteDebug.exe
+c:\users\hydro\desktop\uni lab stuff\thief-rewrite\thief rewrite.cpp(335): warning C4101: 'wy': unreferenced local variable
+c:\users\hydro\desktop\uni lab stuff\thief-rewrite\thief rewrite.cpp(335): warning C4101: 'vy': unreferenced local variable
+  Thief Rewrite.vcxproj -> C:\Users\Hydro\Desktop\Uni Lab Stuff\Thief-Rewrite\\Thief RewriteDebug.exe
   Copying DLLs & shaders...
