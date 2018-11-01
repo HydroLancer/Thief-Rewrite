@@ -3,6 +3,8 @@
 #include <TL-Engine.h>	// TL-Engine include file and namespace
 #include <math.h>
 #include <sstream>
+#include "CMatrix4x4cut.h"		//Time for Cross product oh lord
+#include "CVector3cut.h"		
 
 using namespace tle;
 
@@ -76,7 +78,8 @@ void main()
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("C:\\ProgramData\\TL-Engine\\Media");
 	//myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
-	myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
+	//myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");		//Laptop
+	myEngine->AddMediaFolder("D:\\Nhendley\\Documents\\GitHub\\Thief-Rewrite\\models");					//Uni Computer
 
 	/**** Set up your scene here ****/
 
@@ -324,8 +327,7 @@ void guardFacingVector(IModel* guard, float &x, float &z)
 	float matrix[16];
 	guard->GetMatrix(matrix);
 
-	x = matrix[8];
-	z = matrix[10];
+	CVector3(matrix[8], matrix[9], matrix[10]);
 }
 
 //holy heck it works now - gets dot product between guard and thief

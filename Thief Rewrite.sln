@@ -4,6 +4,12 @@ VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Thief Rewrite", "Thief Rewrite.vcxproj", "{09E3BFC2-BE9D-42C6-AD13-08A2F474390E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5AEB0C7F-2E64-4C8F-8684-CF2A6D43D358}"
+	ProjectSection(SolutionItems) = preProject
+		CMatrix4x4cut.h = CMatrix4x4cut.h
+		CVector3cut.h = CVector3cut.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
