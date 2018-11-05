@@ -3,6 +3,8 @@
 #include <TL-Engine.h>	// TL-Engine include file and namespace
 #include <math.h>
 #include <sstream>
+#include "CVector3cut.h"
+#include "CMatrix4x4cut.h"
 
 using namespace tle;
 
@@ -16,13 +18,13 @@ void characterMovement(IModel* character, float frameTimer);	//WASD, etc
 void floorHandler(IModel* thief, IModel* square[]);				//Step on the red to make the floor scream
 
 //guard related
-void guardFacingVector(IModel* guard, float &x, float &z);									//gets guard's facing vector
+void guardFacingVector(IModel* guard);												//gets guard's facing vector
 void guardPatrol(IModel* guard, IModel* waypoint[]);													//guard's patrol route - uses dummies for waypoints, sphere to point collision
 float guardToThiefDistance(IModel* guard, IModel* character);											//self explanatory - distance between thief & guard
 void detectionHandler(float distance, enum Thief noise, float dotProduct, enum Guard &guardState);		//logic! what happens when - sets enum states for the guard (Idle, alert, dead)
 
 //Maffs
-float dotProduct(float x, float z, IModel* guard, IModel* thief);		//gives the ""Angle"" between guard's FV & thief -> guard vector
+float dotProduct(IModel* guard, IModel* thief);		//gives the ""Angle"" between guard's FV & thief -> guard vector
 
 //real time debuggin'
 void textOutput(IFont* font, float angle, float distance, enum Guard guardState, enum Thief thiefNoise, enum ThiefMovement movementType);
@@ -46,8 +48,9 @@ float dotProductResult = 0;
 float distanceToThief = 0;
 
 //facing vector majigs
-float x = 0;
-float z = 0;
+//float x;
+//float z;
+CVector3 facingVector;
 
 //controls
 const EKeyCode forwards = Key_W;
@@ -142,9 +145,9 @@ void main()
 		//
 
 		//handling all the guard things - facing vector, distance to thief, dot product resolution
-		guardFacingVector(guard, x, z);
+		guardFacingVector(guard);
 		distanceToThief = guardToThiefDistance(guard, sierra);
-		dotProductResult = dotProduct(x, z, guard, sierra);
+		dotProductResult = dotProduct(guard, sierra);
 		detectionHandler(distanceToThief, noiseLevel, dotProductResult, guardState);
 		//
 
@@ -319,22 +322,21 @@ void floorHandler(IModel* thief, IModel* square[])
 }
 
 //gets guard's facing vector
-void guardFacingVector(IModel* guard, float &x, float &z)
+void guardFacingVector(IModel* guard)
 {
 	float matrix[16];
 	guard->GetMatrix(matrix);
 
-	x = matrix[8];
-	z = matrix[10];
+	facingVector.Set(&matrix[8]);
 }
 
 //holy heck it works now - gets dot product between guard and thief
 //includes working out vector between the guard and thief
-float dotProduct(float x, float z, IModel* guard, IModel* thief)
+float dotProduct(IModel* guard, IModel* thief)
 {
 	float vx, vy, vz, wx, wy, wz;
-	vx = x;
-	vz = z;
+	vx = facingVector.x;
+	vz = facingVector.z;
 	wx = thief->GetX() - guard->GetX();
 	wz = thief->GetZ() - guard->GetZ();
 
