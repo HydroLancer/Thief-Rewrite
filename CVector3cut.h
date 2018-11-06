@@ -44,8 +44,6 @@ public:
 	{
 	    return x*v.x + y*v.y + z*v.z;
 	}
-
-
 };
 	
 // Subtracting of two given vectors (order is important - non-member version

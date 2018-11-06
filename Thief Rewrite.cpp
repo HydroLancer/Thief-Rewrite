@@ -18,7 +18,7 @@ void characterMovement(IModel* character, float frameTimer);	//WASD, etc
 void floorHandler(IModel* thief, IModel* square[]);				//Step on the red to make the floor scream
 
 //guard related
-void guardFacingVector(IModel* guard);												//gets guard's facing vector
+void guardFacingVector(IModel* guard, IModel* thief);												//gets guard's facing vector
 void guardPatrol(IModel* guard, IModel* waypoint[]);													//guard's patrol route - uses dummies for waypoints, sphere to point collision
 float guardToThiefDistance(IModel* guard, IModel* character);											//self explanatory - distance between thief & guard
 void detectionHandler(float distance, enum Thief noise, float dotProduct, enum Guard &guardState);		//logic! what happens when - sets enum states for the guard (Idle, alert, dead)
@@ -47,10 +47,10 @@ int currentWaypoint = 0;
 float dotProductResult = 0;
 float distanceToThief = 0;
 
-//facing vector majigs
-//float x;
-//float z;
-CVector3 facingVector;
+//Maths-y Things
+CVector3 facingVector;		//stores current facing vector of the guard
+CVector3 thiefPosition;		//I guess it stores the current pos of the MC
+CVector3 guardPosition;		//as above but for guard
 
 //controls
 const EKeyCode forwards = Key_W;
@@ -78,8 +78,8 @@ void main()
 
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("C:\\ProgramData\\TL-Engine\\Media");
-	//myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
-	myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
+	myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
+	//myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
 
 	/**** Set up your scene here ****/
 
@@ -145,7 +145,7 @@ void main()
 		//
 
 		//handling all the guard things - facing vector, distance to thief, dot product resolution
-		guardFacingVector(guard);
+		guardFacingVector(guard, sierra);
 		distanceToThief = guardToThiefDistance(guard, sierra);
 		dotProductResult = dotProduct(guard, sierra);
 		detectionHandler(distanceToThief, noiseLevel, dotProductResult, guardState);
@@ -291,9 +291,9 @@ void guardPatrol(IModel* guard, IModel* waypoint[])
 //works out distance between thief and guard
 float guardToThiefDistance(IModel* guard, IModel* character)
 {
-	float x = guard->GetX() - character->GetX();
-	float z = guard->GetZ() - character->GetZ();
-	return sqrt(x*x + z * z);
+	float x = guardPosition.x - thiefPosition.x;
+	float z = guardPosition.z - thiefPosition.z;
+	return sqrt(x * x + z * z);
 }
 
 //sets thief to noisy if stepping on red panels
@@ -321,26 +321,27 @@ void floorHandler(IModel* thief, IModel* square[])
 	}
 }
 
-//gets guard's facing vector
-void guardFacingVector(IModel* guard)
+//gets guard's facing vector & sets guard's current pos and thief's current pos
+void guardFacingVector(IModel* guard, IModel* thief)
 {
-	float matrix[16];
-	guard->GetMatrix(matrix);
+	float guardMatrix[16];
+	float thiefMatrix[16];
+	guard->GetMatrix(guardMatrix);
+	thief->GetMatrix(thiefMatrix);
 
-	facingVector.Set(&matrix[8]);
+	facingVector.Set(&guardMatrix[8]);
+	guardPosition.Set(&guardMatrix[12]);
+	thiefPosition.Set(&thiefMatrix[12]);
 }
 
 //holy heck it works now - gets dot product between guard and thief
 //includes working out vector between the guard and thief
 float dotProduct(IModel* guard, IModel* thief)
 {
-	float vx, vy, vz, wx, wy, wz;
-	vx = facingVector.x;
-	vz = facingVector.z;
-	wx = thief->GetX() - guard->GetX();
-	wz = thief->GetZ() - guard->GetZ();
-
-	return (vx * wx) + (vz * wz);
+	//gets the vector between the thief and the guard
+	CVector3 vectorToThief = Subtract(thiefPosition, guardPosition);
+	//Dot() uses these 2 to get the Dot Product. 
+	return Dot(vectorToThief, facingVector);
 }
 
 void detectionHandler(float distance, enum Thief noise, float dotProduct, enum Guard &guardState)
