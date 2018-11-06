@@ -49,6 +49,8 @@ float distanceToThief = 0;
 
 //Maths-y Things
 CVector3 facingVector;		//stores current facing vector of the guard
+CVector3 guardLocalX;
+
 CVector3 thiefPosition;		//I guess it stores the current pos of the MC
 CVector3 guardPosition;		//as above but for guard
 
@@ -78,8 +80,8 @@ void main()
 
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("C:\\ProgramData\\TL-Engine\\Media");
-	myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
-	//myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
+	//myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
+	myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
 
 	/**** Set up your scene here ****/
 
@@ -330,6 +332,7 @@ void guardFacingVector(IModel* guard, IModel* thief)
 	thief->GetMatrix(thiefMatrix);
 
 	facingVector.Set(&guardMatrix[8]);
+	guardLocalX.Set(&guardMatrix[0]);
 	guardPosition.Set(&guardMatrix[12]);
 	thiefPosition.Set(&thiefMatrix[12]);
 }
