@@ -18,10 +18,12 @@ void characterMovement(IModel* character, float frameTimer);	//WASD, etc
 void floorHandler(IModel* thief, IModel* square[]);				//Step on the red to make the floor scream
 
 //guard related
-void guardFacingVector(IModel* guard, IModel* thief);												//gets guard's facing vector
+void guardFacingVector(IModel* guard, IModel* thief);													//gets guard's facing vector
 void guardPatrol(IModel* guard, IModel* waypoint[]);													//guard's patrol route - uses dummies for waypoints, sphere to point collision
 float guardToThiefDistance(IModel* guard, IModel* character);											//self explanatory - distance between thief & guard
 void detectionHandler(float distance, enum Thief noise, float dotProduct, enum Guard &guardState);		//logic! what happens when - sets enum states for the guard (Idle, alert, dead)
+float guardLeftorRight();
+void Look(IModel* guard);
 
 //Maffs
 float dotProduct(IModel* guard, IModel* thief);		//gives the ""Angle"" between guard's FV & thief -> guard vector
@@ -41,15 +43,17 @@ float turnSpeed = 45.0f;
 //Guard Movement Speeds & other thingies
 float guardPatrolling = 5.0f;
 float guardChasing = 10.0f;
+float side = 0.0f;
 
 int currentWaypoint = 0;
 
-float dotProductResult = 0;
-float distanceToThief = 0;
+float dotProductResult = 0.0f;
+float distanceToThief = 0.0f;
 
 //Maths-y Things
 CVector3 facingVector;		//stores current facing vector of the guard
 CVector3 guardLocalX;
+CVector3 vectorToThief;
 
 CVector3 thiefPosition;		//I guess it stores the current pos of the MC
 CVector3 guardPosition;		//as above but for guard
@@ -80,8 +84,8 @@ void main()
 
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("C:\\ProgramData\\TL-Engine\\Media");
-	//myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
-	myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
+	myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
+	//myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
 
 	/**** Set up your scene here ****/
 
@@ -128,6 +132,7 @@ void main()
 	noisyFloor[1] = noisyFloorMesh->CreateModel(0.0f, -5.0f, -20.0f);
 	noisyFloor[2] = noisyFloorMesh->CreateModel(20.0f, -5.0f, -10.0f);
 
+	//sets the floor panels to be red
 	for (int i = 0; i < 3; i++)
 	{
 		noisyFloor[i]->SetSkin("red.PNG");
@@ -151,6 +156,7 @@ void main()
 		distanceToThief = guardToThiefDistance(guard, sierra);
 		dotProductResult = dotProduct(guard, sierra);
 		detectionHandler(distanceToThief, noiseLevel, dotProductResult, guardState);
+		side = guardLeftorRight();
 		//
 
 		//handles guard actions
@@ -161,7 +167,7 @@ void main()
 		}
 		if (guardState == alert)
 		{
-			guard->LookAt(sierra);		//look at replacing this with a custom lookat func sometime, make it more "realistic"		
+			Look(guard);	//look at replacing this with a custom lookat func sometime, make it more "realistic"		
 			state->SetSkin("red.PNG");	//Slow-ish turn until cross product returns 0(?), then chase (musing)
 			guard->MoveLocalZ(guardChasing * gameSpeed);
 		}
@@ -181,12 +187,24 @@ void main()
 //outputs variables to screen for sanity checking. 
 void textOutput(IFont* font, float angle, float distance, enum Guard guardState, enum Thief thiefNoise, enum ThiefMovement movementType)
 {
+	string sideText;
+	if (side < 0)
+	{
+		sideText = "Left";
+	}
+	else
+	{
+		sideText = "Right";
+	}
+
 	stringstream angleOutput;
 	stringstream distanceOutput;
 	stringstream stateOutput;
 	stringstream noisyOutput;
 	stringstream speedOutput;
+	stringstream sideof;
 
+	sideof << "Side: " << sideText;
 	angleOutput << "Dot Product: " <<  angle;
 	distanceOutput << "Distance to Guard: " << distance;
 	stateOutput << "Guard Alert State: " << guardState;
@@ -198,6 +216,7 @@ void textOutput(IFont* font, float angle, float distance, enum Guard guardState,
 	font->Draw(stateOutput.str(), 850, 660, kBlue);
 	font->Draw(noisyOutput.str(), 850, 150, kBlue);
 	font->Draw(speedOutput.str(), 850, 180, kBlue);
+	font->Draw(sideof.str(), 850, 600, kBlue);
 }
 
 //Handles character movement and speed changing
@@ -332,7 +351,6 @@ void guardFacingVector(IModel* guard, IModel* thief)
 	thief->GetMatrix(thiefMatrix);
 
 	facingVector.Set(&guardMatrix[8]);
-	guardLocalX.Set(&guardMatrix[0]);
 	guardPosition.Set(&guardMatrix[12]);
 	thiefPosition.Set(&thiefMatrix[12]);
 }
@@ -342,7 +360,7 @@ void guardFacingVector(IModel* guard, IModel* thief)
 float dotProduct(IModel* guard, IModel* thief)
 {
 	//gets the vector between the thief and the guard
-	CVector3 vectorToThief = Subtract(thiefPosition, guardPosition);
+	vectorToThief = Subtract(thiefPosition, guardPosition);
 	//Dot() uses these 2 to get the Dot Product. 
 	return Dot(vectorToThief, facingVector);
 }
@@ -361,4 +379,38 @@ void detectionHandler(float distance, enum Thief noise, float dotProduct, enum G
 	{
 		guardState = dead;
 	}
+}
+
+float guardLeftorRight()
+{
+	CVector3 guardLocalX = Cross(kYAxis, facingVector);
+	float side = Dot(vectorToThief, Cross(kYAxis,facingVector));
+	return side;
+}
+
+void Look(IModel* guard)
+{
+	// Calculate matrix axes for guard
+		// Get facing (z) vector from positions
+	CVector3 vecZ = Normalise(Subtract(thiefPosition, guardPosition));
+	// Use cross products to get other axes
+	// Must normalise axes
+	CVector3 vecX = Normalise(Cross(kYAxis, vecZ));
+	CVector3 vecY = Normalise(Cross(vecZ, vecX));
+
+	// Build matrix from axes + position
+	// Matrix constructor using four CVector3 variables
+	// - one for each row/column
+	// (see matrix header)
+	// Build matrix by row (axes + position)
+	CMatrix4x4 guardMat;
+	guardMat.MakeIdentity();
+	guardMat.SetRow(0, vecX);
+	guardMat.SetRow(1, vecY);
+	guardMat.SetRow(2, vecZ);
+	guardMat.SetRow(3, guardPosition);
+
+	// Set position of guard using matrix
+	guard->SetMatrix(&guardMat.e00);
+
 }
