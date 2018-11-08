@@ -84,8 +84,9 @@ void main()
 
 	// Add default folder for meshes and other media
 	myEngine->AddMediaFolder("C:\\ProgramData\\TL-Engine\\Media");
-	myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
+	//myEngine->AddMediaFolder("E:\\Uni Stuff!\\2nd Year\\Game Dev 1\\Labs\\Thief-Rewrite\\models");	//Home Desktop
 	//myEngine->AddMediaFolder("C:\\Users\\Hydro\\Desktop\\Uni Lab Stuff\\Thief-Rewrite\\models");	//Laptop
+	myEngine->AddMediaFolder("D:\\Nhendley\\Documents\\GitHub\\Thief-Rewrite\\models");
 
 	/**** Set up your scene here ****/
 
@@ -167,7 +168,7 @@ void main()
 		}
 		if (guardState == alert)
 		{
-			Look(guard);	//look at replacing this with a custom lookat func sometime, make it more "realistic"		
+			Look(guard);	//Custom Look fnction is done	
 			state->SetSkin("red.PNG");	//Slow-ish turn until cross product returns 0(?), then chase (musing)
 			guard->MoveLocalZ(guardChasing * gameSpeed);
 		}
